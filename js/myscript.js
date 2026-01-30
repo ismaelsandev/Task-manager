@@ -1,12 +1,12 @@
 let jsonData = {
-    "dashboard": { "paneles": [] }
+    paneles: []
 };
 
-function renderDashboard() {
+function renderDashboard(guardar = true) {
     const dashboard = document.getElementById("dashboard");
     dashboard.innerHTML = "";
 
-    jsonData.dashboard.paneles.forEach(panel => {
+    jsonData.paneles.forEach(panel => {
         const panelDiv = document.createElement("div");
         panelDiv.classList.add("panel");
         panelDiv.innerHTML = `
@@ -27,7 +27,7 @@ function renderDashboard() {
         dashboard.appendChild(panelDiv);
     });
 
-    //guardarJSON();
+    if (guardar) guardarJSON();
 }
 
 function agregarPanel() {
@@ -36,12 +36,12 @@ function agregarPanel() {
         nombre: "Nuevo Panel",
         tarjetas: []
     };
-    jsonData.dashboard.paneles.push(nuevoPanel);
-    renderDashboard();
+    jsonData.paneles.push(nuevoPanel);
+    renderDashboard(true);
 }
 
 function agregarTarjeta(panelId) {
-    const panel = jsonData.dashboard.paneles.find(p => p.id === panelId);
+    const panel = jsonData.paneles.find(p => p.id === panelId);
     if (panel) {
         const nuevaTarjeta = {
             id: Date.now(),
@@ -49,20 +49,20 @@ function agregarTarjeta(panelId) {
             descripcion: "Descripción pendiente"
         };
         panel.tarjetas.push(nuevaTarjeta);
-        renderDashboard();
+        renderDashboard(true);
     }
 }
 
 function eliminarPanel(panelId) {
-    jsonData.dashboard.paneles = jsonData.dashboard.paneles.filter(p => p.id !== panelId);
-    renderDashboard();
+    jsonData.paneles = jsonData.paneles.filter(p => p.id !== panelId);
+    renderDashboard(true);
 }
 
 function eliminarTarjeta(panelId, tarjetaId) {
-    const panel = jsonData.dashboard.paneles.find(p => p.id === panelId);
+    const panel = jsonData.paneles.find(p => p.id === panelId);
     if (panel) {
         panel.tarjetas = panel.tarjetas.filter(t => t.id !== tarjetaId);
-        renderDashboard();
+        renderDashboard(true);
     }
 }
 
@@ -95,7 +95,7 @@ function cargarJSON() {
         .then(data => {
             jsonData = data; // Asignamos el contenido recibido al objeto global
             console.log(data);
-            renderDashboard(); // Renderizamos el dashboard en la interfaz
+            renderDashboard(false); // Renderizamos el dashboard en la interfaz
         })
         .catch(error => {
             console.error("Error al cargar el dashboard:", error);
@@ -103,8 +103,6 @@ function cargarJSON() {
             //Comprobar si está vacío o realmente es un error.
         });
 }
-
-//cargarJSON();
 
 function newDashboard() {
     let nombre = prompt("Introduce el nombre del nuevo dashboard:");
@@ -136,8 +134,7 @@ function cargarDashboard(id) {
         .then(res => res.json())
         .then(data => {
             jsonData = data;
-            //renderDashboard(false);
-            renderDashboard();
+            renderDashboard(false);
         })
         .catch(err => {
             console.error("Error al cargar dashboard:", err);
