@@ -5,18 +5,16 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Dharma</title>
+		<title>Task-manager</title>
 		<link rel="stylesheet" href="css/estilos.css?v=<?php echo time(); ?>">
 	</head>
 	<body>
 		<main>
 			<aside>
-				<h1>Dharma</h1>
-				<div class="dashboards-lists">
-					<p style="margin-top: 20px;">Your dashboards</p>
-					<button class="button-newDashboard" onclick = "newDashboard()">+</button>
-				</div>
-
+				<h1>Task-manager</h1>
+				<button class="button-newDashboard" onclick = "newDashboard()">Crear dashboard</button>
+				
+				<p>Your dashboards:</p>
 				<nav id="dashboardList"></nav>
 				
 				<a href="logout.php" class="logout">Salir</a>

@@ -112,7 +112,7 @@ function cargarJSON() {
         });
 }
 
-function cargarDashboardsAside() {
+/*function cargarDashboardsAside() {
     fetch("listarDashboards.php")
         .then(res => res.json())
         .then(dashboards => {
@@ -130,6 +130,39 @@ function cargarDashboardsAside() {
             });
         })
         .catch(err => console.error("Error cargando dashboards:", err));
+}*/
+
+function cargarDashboardsAside(autoAbrir = true) {
+    fetch("listarDashboards.php")
+        .then(res => res.json())
+        .then(dashboards => {
+            const contenedor = document.getElementById("dashboardList");
+            contenedor.innerHTML = "";
+
+            dashboards.forEach(d => {
+                const btn = document.createElement("button");
+                btn.className = "dashboard-btn";
+                btn.textContent = d.nombre;
+                btn.dataset.id = d.id;
+
+                btn.onclick = () => cargarDashboard(d.id);
+
+                // botón borrar
+                const borrar = document.createElement("span");
+                borrar.textContent = " 🗑️";
+                borrar.style.float = "right";
+                borrar.onclick = e => {
+                    e.stopPropagation();
+                    borrarDashboard(d.id);
+                };
+
+                btn.appendChild(borrar);
+                contenedor.appendChild(btn);
+            });
+
+            // abrir último dashboard o el primero
+            if (autoAbrir) abrirDashboardInicial(dashboards);
+        });
 }
 
 function cargarDashboard(id) {
@@ -138,6 +171,9 @@ function cargarDashboard(id) {
         .then(data => {
             jsonData = data;
             dashboardActivoId = id;
+            localStorage.setItem("dashboardActivo", id);
+
+            marcarDashboardActivo(id);
             renderDashboard(false);
         })
         .catch(err => {
@@ -145,8 +181,6 @@ function cargarDashboard(id) {
             alert("No se pudo cargar el dashboard");
         });
 }
-
-cargarDashboardsAside();
 
 function newDashboard() {
     const nombre = prompt("Nombre del dashboard:");
@@ -163,3 +197,33 @@ function newDashboard() {
         cargarDashboard(dashboard.id);
     });
 }
+
+function marcarDashboardActivo(id) {
+    document.querySelectorAll(".dashboard-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.id == id);
+    });
+}
+
+function abrirDashboardInicial(dashboards) {
+    const ultimo = localStorage.getItem("dashboardActivo");
+
+    const existe = dashboards.find(d => d.id == ultimo);
+
+    if (existe) {
+        cargarDashboard(ultimo);
+    } else if (dashboards.length > 0) {
+        cargarDashboard(dashboards[0].id);
+    }
+}
+
+function borrarDashboard(id) {
+    if (!confirm("¿Eliminar este dashboard?")) return;
+
+    fetch(`borrarDashboard.php?id=${id}`)
+        .then(() => {
+            localStorage.removeItem("dashboardActivo");
+            cargarDashboardsAside(true);
+        });
+}
+
+cargarDashboardsAside();
