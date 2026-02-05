@@ -1,8 +1,11 @@
 let jsonData = {
+    nombre: "Dashboard",
     paneles: []
 };
 
 let dashboardActivoId = null;
+let draggedCard = null;
+let tarjetaEditando = null;
 
 function renderDashboard(guardar = true) {
     const dashboard = document.getElementById("dashboard");
@@ -11,25 +14,192 @@ function renderDashboard(guardar = true) {
     jsonData.paneles.forEach(panel => {
         const panelDiv = document.createElement("div");
         panelDiv.classList.add("panel");
+        panelDiv.dataset.panelId = panel.id;
+
+        panelDiv.ondragover = e => e.preventDefault();
+        panelDiv.ondrop = () => dropCard(panel.id);
+
         panelDiv.innerHTML = `
-            <h3>${panel.nombre}</h3>
+            <h3 ondblclick="renombrarPanel(${panel.id}, this)">${panel.nombre}</h3>
             <button class='btn' onclick="agregarTarjeta(${panel.id})">➕ Añadir Tarjeta</button>
             <button class='btn' style="background:red;" onclick="eliminarPanel(${panel.id})">🗑️ Borrar Panel</button>
-        `
+        `;
+
         panel.tarjetas.forEach(card => {
             const cardDiv = document.createElement("div");
             cardDiv.classList.add("card");
+            cardDiv.draggable = true;
+            cardDiv.dataset.cardId = card.id;
+            cardDiv.dataset.panelId = panel.id;
+
+            cardDiv.ondragstart = () => startDrag(card.id, panel.id);
+
             cardDiv.innerHTML = `
-                <strong>${card.titulo}</strong>
-                <p>${card.descripcion}</p>
+                <strong ondblclick="renombrarTarjeta(${panel.id}, ${card.id}, this)">${card.titulo}</strong>
+                <p ondblclick="abrirModalDescripcion(${panel.id}, ${card.id})">${card.descripcion}</p>
                 <button class='btn' style="background:crimson;" onclick="eliminarTarjeta(${panel.id}, ${card.id})">❌ Eliminar</button>
             `;
             panelDiv.appendChild(cardDiv);
         });
+
         dashboard.appendChild(panelDiv);
     });
 
     if (guardar) guardarJSON();
+}
+
+function abrirModalDescripcion(panelId, cardId) {
+    const panel = jsonData.paneles.find(p => p.id === panelId);
+    if (!panel) return;
+
+    const card = panel.tarjetas.find(t => t.id === cardId);
+    if (!card) return;
+
+    tarjetaEditando = { panelId, cardId };
+
+    document.getElementById("descripcionTextarea").value = card.descripcion || "";
+    document.getElementById("descripcionModal").classList.remove("oculto");
+}
+
+function guardarDescripcion() {
+    if (!tarjetaEditando) return;
+
+    const { panelId, cardId } = tarjetaEditando;
+
+    const panel = jsonData.paneles.find(p => p.id === panelId);
+    if (!panel) return;
+
+    const card = panel.tarjetas.find(t => t.id === cardId);
+    if (!card) return;
+
+    card.descripcion = document.getElementById("descripcionTextarea").value.trim();
+
+    tarjetaEditando = null;
+    cerrarModal();
+    guardarJSON();
+    renderDashboard(false);
+}
+
+function cerrarModal() {
+    document.getElementById("descripcionModal").classList.add("oculto");
+    tarjetaEditando = null;
+}
+
+function renombrarDashboard(element) {
+    const input = document.createElement("input");
+    input.value = jsonData.nombre;
+
+    element.replaceWith(input);
+    input.focus();
+
+    input.onblur = () => {
+        if (input.value.trim()) {
+            jsonData.nombre = input.value.trim();
+            guardarJSON();
+            cargarDashboardsAside(false);
+        }
+        renderDashboard(false);
+    };
+
+    input.onkeydown = e => {
+        if (e.key === "Enter") input.blur();
+    };
+}
+
+function renombrarPanel(panelId, element) {
+    const panel = jsonData.paneles.find(p => p.id === panelId);
+    if (!panel) return;
+
+    const input = document.createElement("input");
+    input.value = panel.nombre;
+
+    element.replaceWith(input);
+    input.focus();
+
+    input.onblur = () => {
+        if (input.value.trim()) {
+            panel.nombre = input.value.trim();
+            guardarJSON();
+        }
+        renderDashboard(false);
+    };
+
+    input.onkeydown = e => {
+        if (e.key === "Enter") input.blur();
+    };
+}
+
+function renombrarTarjeta(panelId, cardId, element) {
+    const panel = jsonData.paneles.find(p => p.id === panelId);
+    if (!panel) return;
+
+    const card = panel.tarjetas.find(t => t.id === cardId);
+    if (!card) return;
+
+    const input = document.createElement("input");
+    input.value = card.titulo;
+
+    element.replaceWith(input);
+    input.focus();
+
+    input.onblur = () => {
+        if (input.value.trim()) {
+            card.titulo = input.value.trim();
+            guardarJSON();
+        }
+        renderDashboard(false);
+    };
+
+    input.onkeydown = e => {
+        if (e.key === "Enter") input.blur();
+    };
+}
+
+function editarDescripcion(panelId, cardId, element) {
+    const panel = jsonData.paneles.find(p => p.id === panelId);
+    if (!panel) return;
+
+    const card = panel.tarjetas.find(t => t.id === cardId);
+    if (!card) return;
+
+    const textarea = document.createElement("textarea");
+    textarea.value = card.descripcion;
+    textarea.rows = 3;
+
+    element.replaceWith(textarea);
+    textarea.focus();
+
+    textarea.onblur = () => {
+        card.descripcion = textarea.value.trim();
+        guardarJSON();
+        renderDashboard(false);
+    };
+}
+
+function startDrag(cardId, panelId) {
+    draggedCard = { cardId, panelId };
+}
+
+function dropCard(targetPanelId) {
+    if (!draggedCard) return;
+
+    const { cardId, panelId } = draggedCard;
+    if (panelId === targetPanelId) return;
+
+    const fromPanel = jsonData.paneles.find(p => p.id === panelId);
+    const toPanel = jsonData.paneles.find(p => p.id === targetPanelId);
+
+    if (!fromPanel || !toPanel) return;
+
+    const index = fromPanel.tarjetas.findIndex(t => t.id === cardId);
+    if (index === -1) return;
+
+    const [card] = fromPanel.tarjetas.splice(index, 1);
+    toPanel.tarjetas.push(card);
+
+    draggedCard = null;
+    guardarJSON();
+    renderDashboard(false);
 }
 
 function agregarPanel() {
@@ -112,26 +282,6 @@ function cargarJSON() {
         });
 }
 
-/*function cargarDashboardsAside() {
-    fetch("listarDashboards.php")
-        .then(res => res.json())
-        .then(dashboards => {
-            const contenedor = document.getElementById("dashboardList");
-            contenedor.innerHTML = "";
-
-            dashboards.forEach(dashboard => {
-                const btn = document.createElement("button");
-                btn.className = "dashboard-btn";
-                btn.textContent = dashboard.nombre;
-
-                btn.onclick = () => cargarDashboard(dashboard.id);
-
-                contenedor.appendChild(btn);
-            });
-        })
-        .catch(err => console.error("Error cargando dashboards:", err));
-}*/
-
 function cargarDashboardsAside(autoAbrir = true) {
     fetch("listarDashboards.php")
         .then(res => res.json())
@@ -146,6 +296,7 @@ function cargarDashboardsAside(autoAbrir = true) {
                 btn.dataset.id = d.id;
 
                 btn.onclick = () => cargarDashboard(d.id);
+                btn.ondblclick = () => renombrarDashboard(this);
 
                 // botón borrar
                 const borrar = document.createElement("span");

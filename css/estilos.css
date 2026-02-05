@@ -46,7 +46,7 @@ a:hover, button:hover {
 }
 
 .logout {
-	margin-top: 220px;
+	margin-top: 350px;
 	color: #d1d5db;
 	cursor: pointer;
 	font-size: 14px;
@@ -133,4 +133,32 @@ section {
 
 .button-newDashboard {
 	width: 200px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.oculto {
+    display: none;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    width: 400px;
+    border-radius: 8px;
+}
+
+.modal-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }

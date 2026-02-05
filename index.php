@@ -24,6 +24,20 @@
 				<button class="add-button" onclick="agregarPanel()">+</button>
 			</section>
 		</main>
+
+		<div id="descripcionModal" class="modal oculto">
+			<div class="modal-content">
+				<h3>Editar descripción</h3>
+
+				<textarea id="descripcionTextarea" rows="6"></textarea>
+
+				<div class="modal-actions">
+					<button onclick="guardarDescripcion()">💾 Guardar</button>
+					<button onclick="cerrarModal()">❌ Cancelar</button>
+				</div>
+			</div>
+		</div>
+
 		<script src = "js/myscript.js"></script>
 	</body>
 </html>
