@@ -6,6 +6,7 @@ let jsonData = {
 let dashboardActivoId = null;
 let draggedCard = null;
 let tarjetaEditando = null;
+let dashboardConfigId = null;
 
 function renderDashboard(guardar = true) {
     const dashboard = document.getElementById("dashboard");
@@ -83,27 +84,6 @@ function guardarDescripcion() {
 function cerrarModal() {
     document.getElementById("descripcionModal").classList.add("oculto");
     tarjetaEditando = null;
-}
-
-function renombrarDashboard(element) {
-    const input = document.createElement("input");
-    input.value = jsonData.nombre;
-
-    element.replaceWith(input);
-    input.focus();
-
-    input.onblur = () => {
-        if (input.value.trim()) {
-            jsonData.nombre = input.value.trim();
-            guardarJSON();
-            cargarDashboardsAside(false);
-        }
-        renderDashboard(false);
-    };
-
-    input.onkeydown = e => {
-        if (e.key === "Enter") input.blur();
-    };
 }
 
 function renombrarPanel(panelId, element) {
@@ -259,9 +239,6 @@ function guardarJSON() {
 }
 
 function cargarJSON() {
-    /*const data = localStorage.getItem("dashboardData");
-    if (data) jsonData = JSON.parse(data);
-    renderDashboard();*/
 
     fetch('cargarDashboard.php')
         .then(response => {
@@ -296,7 +273,16 @@ function cargarDashboardsAside(autoAbrir = true) {
                 btn.dataset.id = d.id;
 
                 btn.onclick = () => cargarDashboard(d.id);
-                btn.ondblclick = () => renombrarDashboard(this);
+
+                const settings = document.createElement("span");
+                settings.textContent = " ⚙️";
+                settings.style.float = "right";
+                settings.onclick = e => {
+                    e.stopPropagation();
+                    abrirConfiguracionDashboard(d.id);
+                };
+
+                btn.appendChild(settings);
 
                 // botón borrar
                 const borrar = document.createElement("span");
@@ -375,6 +361,27 @@ function borrarDashboard(id) {
             localStorage.removeItem("dashboardActivo");
             cargarDashboardsAside(true);
         });
+}
+
+function abrirConfiguracionDashboard(dashboardId) {
+    dashboardConfigId = dashboardId;
+
+    fetch(`obtenerDashboardConfig.php?id=${dashboardId}`)
+        .then(res => res.text())
+        .then(text => {
+            console.log(text);
+        });
+        /*.then(res => res.json())
+        .then(data => {
+            document.getElementById("dashboardNombreInput").value = data.nombre;
+            //renderUsuariosDashboard(data.usuarios);
+        });*/
+
+    document.getElementById("settingsModal").classList.remove("oculto");    
+}
+
+function cerrarSettingsModal() {
+    document.getElementById("settingsModal").classList.add("oculto");
 }
 
 cargarDashboardsAside();

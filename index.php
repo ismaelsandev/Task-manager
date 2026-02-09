@@ -38,6 +38,29 @@
 			</div>
 		</div>
 
+		<div id="settingsModal" class="modal oculto">
+			<div class="modal-content">
+				<h2>Configuración del dashboard</h2>
+
+				<label>
+					Nombre del dashboard
+					<input id="dashboardNombreInput" type="text">
+				</label>
+
+				<hr>
+
+				<h3>Usuarios con acceso</h3>
+				<ul id="listaUsuarios"></ul>
+
+				<input id="inviteEmail" type="email" placeholder="Email del usuario">
+				<button onclick="invitarUsuario()">Invitar</button>
+
+				<div class="modal-actions">
+					<button onclick="cerrarSettingsModal()">Cerrar</button>
+				</div>
+			</div>
+		</div>
+
 		<script src = "js/myscript.js"></script>
 	</body>
 </html>
