@@ -16,6 +16,9 @@
 				
 				<p>Your dashboards:</p>
 				<nav id="dashboardList"></nav>
+
+				<p>Invitaciones:</p>
+				<div id="notificaciones" class="notificaciones-panel"></div>
 				
 				<a href="logout.php" class="logout">Salir</a>
 			</aside>
@@ -43,7 +46,7 @@
 				<h2>Configuración del dashboard</h2>
 
 				<label>
-					Nombre del dashboard
+					<p id="nombreDashboard">Nombre del dashboard</p>
 					<input id="dashboardNombreInput" type="text">
 				</label>
 
@@ -52,8 +55,10 @@
 				<h3>Usuarios con acceso</h3>
 				<ul id="listaUsuarios"></ul>
 
-				<input id="inviteEmail" type="email" placeholder="Email del usuario">
+				<input id="invitarEmailInput" type="email" placeholder="Email del usuario">
 				<button onclick="invitarUsuario()">Invitar</button>
+
+				<div id="listaInvitados"></div>
 
 				<div class="modal-actions">
 					<button onclick="cerrarSettingsModal()">Cerrar</button>

@@ -299,6 +299,9 @@ function cargarDashboardsAside(autoAbrir = true) {
 
             // abrir último dashboard o el primero
             if (autoAbrir) abrirDashboardInicial(dashboards);
+
+            alert("Tienes invitaciones pendientes");
+            cargarInvitaciones()
         });
 }
 
@@ -367,21 +370,128 @@ function abrirConfiguracionDashboard(dashboardId) {
     dashboardConfigId = dashboardId;
 
     fetch(`obtenerDashboardConfig.php?id=${dashboardId}`)
-        .then(res => res.text())
+        /*.then(res => res.text())
         .then(text => {
             console.log(text);
-        });
-        /*.then(res => res.json())
-        .then(data => {
-            document.getElementById("dashboardNombreInput").value = data.nombre;
-            //renderUsuariosDashboard(data.usuarios);
         });*/
+        .then(res => res.json())
+        .then(data => {
+            //document.getElementById("dashboardNombreInput").value = data.nombre;
+            document.getElementById("nombreDashboard").innerText = data.nombre;
+            renderUsuariosDashboard(data.usuarios);
+        });
 
     document.getElementById("settingsModal").classList.remove("oculto");    
 }
 
+function renderUsuariosDashboard(usuarios) {
+    const ul = document.getElementById("listaUsuarios");
+    ul.innerHTML = "";
+
+    usuarios.forEach(u => {
+        const li = document.createElement("li");
+        li.textContent = u.email;
+
+        const borrar = document.createElement("button");
+        borrar.textContent = "❌";
+        borrar.onclick = () => quitarUsuario(u.id);
+
+        li.appendChild(borrar);
+        ul.appendChild(li);
+    });
+}
+
+function invitarUsuario() {
+    const input = document.getElementById("invitarEmailInput");
+    const email = input.value.trim();
+
+    if (!email) {
+        alert("Introduce un email válido");
+        return;
+    }
+
+    if (!dashboardConfigId) {
+        alert("No hay dashboard seleccionado");
+        return;
+    }
+
+    fetch("enviarInvitacion.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            dashboard_id: dashboardConfigId,
+            email: email
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Error al enviar invitación");
+        return res.text();
+    })
+    .then(msg => {
+        console.log(msg);
+        input.value = "";
+        cargarUsuariosInvitados(dashboardConfigId); // refresca lista
+        alert("Invitación enviada");
+    })
+    .catch(err => {
+        console.error(err);
+        alert("No se pudo enviar la invitación");
+    });
+}
+
 function cerrarSettingsModal() {
     document.getElementById("settingsModal").classList.add("oculto");
+}
+
+//Revisar!!
+function cargarUsuariosInvitados(dashboardId) {
+    fetch(`obtenerDashboardConfig.php?id=${dashboardId}`)
+        .then(res => res.json())
+        .then(data => {
+            const lista = document.getElementById("listaInvitados");
+            lista.innerHTML = "";
+
+            data.usuarios.forEach(u => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                    ${u.email}
+                    <button onclick="quitarUsuario(${dashboardId}, ${u.id})">❌</button>
+                `;
+                lista.appendChild(div);
+            });
+        });
+}
+
+function cargarInvitaciones() {
+    fetch("obtenerInvitaciones.php")
+        .then(res => res.json())
+        .then(invitaciones => {
+            const cont = document.getElementById("notificaciones");
+            cont.innerHTML = "";
+
+            invitaciones.forEach(i => {
+                const div = document.createElement("div");
+                div.className = "inv-item";
+                div.innerHTML = `
+                    <p><strong>${i.from_email}</strong> te invita a <b>${i.dashboard}</b></p>
+                    <button onclick="responderInv(${i.id}, 'aceptar')">Aceptar</button>
+                    <button onclick="responderInv(${i.id}, 'rechazar')">Rechazar</button>
+                `;
+                cont.appendChild(div);
+            });
+        });
+}
+
+function responderInv(id, accion) {
+    fetch("responderInvitacion.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, accion })
+    })
+    .then(() => {
+        cargarInvitaciones();
+        cargarDashboardsAside(true);
+    });
 }
 
 cargarDashboardsAside();

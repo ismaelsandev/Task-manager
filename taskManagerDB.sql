@@ -26,10 +26,27 @@ CREATE TABLE usuario_dashboard (
     FOREIGN KEY (user_id) REFERENCES usuario(id) ON DELETE CASCADE,
     FOREIGN KEY (dashboard_id) REFERENCES dashboard(id) ON DELETE CASCADE
 );
+
+CREATE TABLE dashboard_invitacion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    dashboard_id INT NOT NULL,
+    from_user_id INT NOT NULL,
+    to_user_id INT NOT NULL,
+    estado ENUM('pendiente', 'aceptada', 'rechazada') DEFAULT 'pendiente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (dashboard_id, to_user_id),
+
+    FOREIGN KEY (dashboard_id) REFERENCES dashboard(id) ON DELETE CASCADE,
+    FOREIGN KEY (from_user_id) REFERENCES usuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_user_id) REFERENCES usuario(id) ON DELETE CASCADE
+);
+
 -- Mostrar contenido de las tablas
 select *  from usuario;
 select * from dashboard;
 select * from usuario_dashboard;
+select * from dashboard_invitacion;
 
 -- Crear dashboard
 INSERT INTO dashboard (nombre, contenido) VALUES ('Gestor de tareas', '{ "paneles": [] }');
