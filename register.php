@@ -41,21 +41,33 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Registro - CRM</title>
+        <title>Registro task manager</title>
+        <link rel="stylesheet" href="css/stylesLoginRegistry.css">
     </head>
     <body>
-        <h2>Registrar nuevo usuario</h2>
+        <h1 class="app-title">Task Manager</h1>
+        <h2 class="login-title">Crear cuenta</h2>
+
         <?php if ($mensaje): ?>
-            <p style="color: <?= strpos($mensaje, 'correctamente') !== false ? 'green' : 'red' ?>"><?= $mensaje ?></p>
+            <p class="<?= strpos($mensaje,'correctamente') !== false ? 'success' : 'error' ?>">
         <?php endif; ?>
+
         <form method="POST" action="register.php">
-            <label>E-mail de usuario:</label>
-            <input type="text" name="useremail" required><br><br>
-            <label>Contraseña:</label>
-            <input type="password" name="password" required><br><br>
-            <label>Confirmar contraseña:</label>
-            <input type="password" name="confirm_password" required><br><br>
+            <label>E-mail de usuario</label>
+            <input type="text" name="useremail" required>
+
+            <label>Contraseña</label>
+            <input type="password" name="password" required>
+
+            <label>Confirmar contraseña</label>
+            <input type="password" name="confirm_password" required>
+
             <button type="submit">Registrar</button>
+
+            <p class="register-link">
+                ¿Ya tienes cuenta?
+                <a href="login.php">Iniciar sesión</a>
+            </p>
         </form>
     </body>
 </html>

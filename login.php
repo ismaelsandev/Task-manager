@@ -41,21 +41,31 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Login - CRM</title>
+        <title>Login task manager</title>
+        <link rel="stylesheet" href="css/stylesLoginRegistry.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     </head>
     <body>
-        <h2>Iniciar sesión</h2>
+        <h1 class="app-title">Task Manager</h1>
+        <h2 class="login-title">Iniciar sesión</h2>
+
         <?php if ($error): ?>
-            <p style="color:red"><?= $error ?></p>
+            <p class="error"><?= $error ?></p>
         <?php endif; ?>
+
         <form method="POST" action="login.php">
-            <label>Usuario:</label>
+            <label>Usuario</label>
             <input type="text" name="useremail" required>
-            <br><br>
-            <label>Contraseña:</label>
+
+            <label>Contraseña</label>
             <input type="password" name="password" required>
-            <br><br>
+
             <button type="submit">Entrar</button>
+
+            <p class="register-link">
+                ¿No tienes cuenta?
+                <a href="register.php">Regístrate</a>
+            </p>
         </form>
     </body>
 </html>

@@ -1,0 +1,146 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Fondo general */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Contenedor del formulario */
+form {
+    margin-top: 10px;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    width: 320px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    animation: fadeIn 0.6s ease;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Título */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+/* Labels */
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+/* Focus en inputs */
+input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+}
+
+/* Botón */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+/* Hover botón */
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Mensaje de error */
+p {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Título app */
+.app-title {
+    color: white;
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+/* Subtítulo */
+.login-title {
+    color: #e5e7eb;
+    margin-bottom: 25px;
+    font-weight: 500;
+}
+
+/* Error */
+.error {
+    color: #fecaca;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+/* Link registro */
+.register-link {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.register-link a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.success {
+    color: #bbf7d0;
+}
