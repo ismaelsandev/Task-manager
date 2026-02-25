@@ -28,15 +28,15 @@
 			</section>
 		</main>
 
-		<div id="descripcionModal" class="modal oculto">
-			<div class="modal-content">
-				<h3>Editar descripción</h3>
+		<div id="descripcionModal" class="modal modal-descripcion oculto">
+			<div class="modal-content modal-descripcion-content">
+				<h3 class="modal-title">Editar descripción</h3>
 
-				<textarea id="descripcionTextarea" rows="6"></textarea>
+				<textarea id="descripcionTextarea" class="descripcion-textarea" rows="6"></textarea>
 
-				<div class="modal-actions">
-					<button onclick="guardarDescripcion()">💾 Guardar</button>
-					<button onclick="cerrarModal()">❌ Cancelar</button>
+				<div class="modal-actions modal-actions-descripcion">
+					<button class="btn-primary" onclick="guardarDescripcion()">💾 Guardar</button>
+					<button class="btn-secondary" onclick="cerrarModal()">❌ Cancelar</button>
 				</div>
 			</div>
 		</div>
@@ -46,8 +46,7 @@
 				<h2>Configuración del dashboard</h2>
 
 				<label>
-					<p id="nombreDashboard">Nombre del dashboard</p>
-					<input id="dashboardNombreInput" type="text">
+					<h3 id="nombreDashboard">Nombre del dashboard</h3>
 				</label>
 
 				<hr>

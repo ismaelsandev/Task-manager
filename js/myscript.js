@@ -21,7 +21,7 @@ function renderDashboard(guardar = true) {
         panelDiv.ondrop = () => dropCard(panel.id);
 
         panelDiv.innerHTML = `
-            <h3 ondblclick="renombrarPanel(${panel.id}, this)">${panel.nombre}</h3>
+            <h3 onclick="renombrarPanel(${panel.id}, this)">${panel.nombre}</h3>
             <button class='btn' onclick="agregarTarjeta(${panel.id})">➕ Añadir Tarjeta</button>
             <button class='btn' style="background:red;" onclick="eliminarPanel(${panel.id})">🗑️ Borrar Panel</button>
         `;
@@ -36,7 +36,7 @@ function renderDashboard(guardar = true) {
             cardDiv.ondragstart = () => startDrag(card.id, panel.id);
 
             cardDiv.innerHTML = `
-                <strong ondblclick="renombrarTarjeta(${panel.id}, ${card.id}, this)">${card.titulo}</strong>
+                <strong onclick="renombrarTarjeta(${panel.id}, ${card.id}, this)">${card.titulo}</strong>
                 <p ondblclick="abrirModalDescripcion(${panel.id}, ${card.id})">${card.descripcion}</p>
                 <button class='btn' style="background:crimson;" onclick="eliminarTarjeta(${panel.id}, ${card.id})">❌ Eliminar</button>
             `;
@@ -300,7 +300,7 @@ function cargarDashboardsAside(autoAbrir = true) {
             // abrir último dashboard o el primero
             if (autoAbrir) abrirDashboardInicial(dashboards);
 
-            alert("Tienes invitaciones pendientes");
+            //alert("Tienes invitaciones pendientes");
             cargarInvitaciones()
         });
 }
@@ -370,18 +370,95 @@ function abrirConfiguracionDashboard(dashboardId) {
     dashboardConfigId = dashboardId;
 
     fetch(`obtenerDashboardConfig.php?id=${dashboardId}`)
-        /*.then(res => res.text())
-        .then(text => {
-            console.log(text);
-        });*/
+
         .then(res => res.json())
         .then(data => {
-            //document.getElementById("dashboardNombreInput").value = data.nombre;
-            document.getElementById("nombreDashboard").innerText = data.nombre;
+            let nombreDashboard = document.getElementById("nombreDashboard");
+            nombreDashboard.innerText = data.nombre;
+            nombreDashboard.onclick = renombrarDashboard;
+
             renderUsuariosDashboard(data.usuarios);
         });
 
     document.getElementById("settingsModal").classList.remove("oculto");    
+}
+
+function renombrarDashboard() {
+
+    const titulo = document.getElementById("nombreDashboard");
+
+    // Evita crear múltiples inputs
+    if (titulo.querySelector("input")) return;
+
+    const nombreOriginal = titulo.innerText.trim();
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = nombreOriginal;
+    input.style.width = "100%";
+    input.style.fontSize = "1.2rem";
+    input.style.fontWeight = "bold";
+
+    titulo.innerHTML = "";
+    titulo.appendChild(input);
+
+    input.focus();
+    input.select();
+
+    // ENTER guarda
+    input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            input.blur();
+        }
+
+        if (e.key === "Escape") {
+            restaurarNombre(nombreOriginal);
+        }
+    });
+
+    // BLUR guarda automáticamente
+    input.addEventListener("blur", function () {
+
+        const nuevoNombre = input.value.trim();
+
+        if (!nuevoNombre) {
+            restaurarNombre(nombreOriginal);
+            return;
+        }
+
+        fetch("renombrarDashboard.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                dashboard_id: dashboardConfigId,
+                nombre: nuevoNombre
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Sin permisos");
+            return res.text();
+        })
+        .then(() => {
+
+            titulo.innerText = nuevoNombre;
+            titulo.onclick = renombrarDashboard;
+
+            // Actualiza lista lateral
+            cargarDashboardsAside(false);
+
+        })
+        .catch(() => {
+            alert("No tienes permisos para renombrar este dashboard");
+            restaurarNombre(nombreOriginal);
+        });
+
+    });
+}
+
+function restaurarNombre(nombre) {
+    const titulo = document.getElementById("nombreDashboard");
+    titulo.innerText = nombre;
+    titulo.onclick = renombrarDashboard;
 }
 
 function renderUsuariosDashboard(usuarios) {
