@@ -7,6 +7,8 @@ let dashboardActivoId = null;
 let draggedCard = null;
 let tarjetaEditando = null;
 let dashboardConfigId = null;
+let lastUpdateTimestamp = null;
+let pollingInterval = null;
 
 function renderDashboard(guardar = true) {
     const dashboard = document.getElementById("dashboard");
@@ -309,12 +311,19 @@ function cargarDashboard(id) {
     fetch(`cargarDashboard.php?id=${id}`)
         .then(res => res.json())
         .then(data => {
-            jsonData = data;
+
+            jsonData = data.contenido || { paneles: [] };
             dashboardActivoId = id;
+
+            lastUpdateTimestamp = data.updated_at || null;
+
             localStorage.setItem("dashboardActivo", id);
 
             marcarDashboardActivo(id);
             renderDashboard(false);
+
+            iniciarPolling();
+
         })
         .catch(err => {
             console.error("Error al cargar dashboard:", err);
@@ -569,6 +578,42 @@ function responderInv(id, accion) {
         cargarInvitaciones();
         cargarDashboardsAside(true);
     });
+}
+
+function iniciarPolling() {
+
+    // Evita múltiples intervalos
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+    }
+
+    pollingInterval = setInterval(() => {
+
+        if (!dashboardActivoId) return;
+
+        fetch(`checkDashboardUpdate.php?id=${dashboardActivoId}`)
+            .then(res => res.json())
+            .then(data => {
+
+                if (!data.updated_at) return;
+
+                // Si otro usuario modificó el dashboard
+                if (lastUpdateTimestamp && data.updated_at !== lastUpdateTimestamp) {
+
+                    console.log("Actualización detectada, recargando...");
+
+                    lastUpdateTimestamp = data.updated_at;
+
+                    cargarDashboard(dashboardActivoId);
+                }
+
+            })
+            .catch(err => console.error("Error polling:", err));
+
+        // También revisamos invitaciones
+        cargarInvitaciones();
+
+    }, 5000); // cada 5 segundos
 }
 
 cargarDashboardsAside();
